@@ -8,7 +8,7 @@ from dotenv import dotenv_values
 # set up environmental variables
 config = dotenv_values('.env')
 
-# client id that is assigned to the spoopy weeb bot api client
+# client id that is assigned to the animeido anilist api client
 client_id = config['CLIENT_ID']
 
 # useful redirect uri provided by anilist in case there is no html schema being used
