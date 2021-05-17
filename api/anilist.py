@@ -4,6 +4,22 @@ an api wrapper library for the anilist APIv2 """
 import requests
 import dotenv
 
+def get_media_id_from_url(anilist_url):
+    """ get media id from url
+    used to strip an anilist url for the media id specifically """
+
+    # initialize media id based off url
+    media_id = 0
+    if 'anilist' in anilist_url:
+        try:
+            media_id = int(anilist_url.split('anilist')[-1].split('/')[2])
+        except ValueError:
+            return False
+    else:
+        return False
+
+    return media_id
+
 class AniList:
 
     def __init__(self):
@@ -133,13 +149,9 @@ class AniList:
         will also add capability to add directly to other states as well """
 
         # initialize media id based off url
-        media_id = 0
-        if 'anilist' in anilist_url:
-            try:
-                media_id = int(anilist_url.split('anilist')[-1].split('/')[2])
-            except ValueError:
-                return False
-        else:
+        media_id = get_media_id_from_url(anilist_url)
+
+        if not media_id:
             return False
 
         # base graphql api url
@@ -185,13 +197,9 @@ class AniList:
         progress = 0
 
         # initialize media id based off url
-        media_id = 0
-        if 'anilist' in anilist_url:
-            try:
-                media_id = int(anilist_url.split('anilist')[-1].split('/')[2])
-            except ValueError:
-                return progress
-        else:
+        media_id = get_media_id_from_url(anilist_url)
+
+        if not media_id:
             return progress
 
         # base graphql api url
@@ -267,13 +275,9 @@ class AniList:
         enables updating anilist media to whatever state we want """
 
         # initialize media id based off url
-        media_id = 0
-        if 'anilist' in anilist_url:
-            try:
-                media_id = int(anilist_url.split('anilist')[-1].split('/')[2])
-            except ValueError:
-                return False
-        else:
+        media_id = get_media_id_from_url(anilist_url)
+
+        if not media_id:
             return False
 
         # track previous progress
@@ -355,13 +359,9 @@ class AniList:
         enables updating the rating for the media entry """
 
         # initialize media id based off url
-        media_id = 0
-        if 'anilist' in anilist_url:
-            try:
-                media_id = int(anilist_url.split('anilist')[-1].split('/')[2])
-            except ValueError:
-                return False
-        else:
+        media_id = get_media_id_from_url(anilist_url)
+
+        if not media_id:
             return False
 
         # base graphql api url
