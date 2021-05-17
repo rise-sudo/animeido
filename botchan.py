@@ -2,6 +2,8 @@
 the main program for the discord bot """
 
 import json
+import yaml
+import random
 import dotenv
 import aiocron
 import discord
@@ -28,22 +30,15 @@ icon_url = config['ICON_URL']
 # set up anilist user
 anilist_user = config['ANILIST_USER']
 
-# all available emojis
-happy_emoji_1_id = int(config['HAPPY_EMOJI_1_ID'])
-happy_emoji_2_id = int(config['HAPPY_EMOJI_2_ID'])
-happy_emoji_3_id = int(config['HAPPY_EMOJI_3_ID'])
-happy_emoji_4_id = int(config['HAPPY_EMOJI_4_ID'])
-happy_emoji_5_id = int(config['HAPPY_EMOJI_5_ID'])
-happy_emoji_6_id = int(config['HAPPY_EMOJI_6_ID'])
-shock_emoji_1_id = int(config['SHOCK_EMOJI_1_ID'])
-shock_emoji_2_id = int(config['SHOCK_EMOJI_2_ID'])
-shock_emoji_3_id = int(config['SHOCK_EMOJI_3_ID'])
-
 # set up the command prefix
 bot = commands.Bot(command_prefix='$weeb')
 
 # set up anilist api
 anilist_api = AniList()
+
+# load the emojis
+with open('data/emojis.yml', 'r') as fn:
+    emojis = yaml.load(fn, Loader=yaml.FullLoader)
 
 @bot.event
 async def on_ready():
@@ -90,20 +85,20 @@ async def add(ctx, anilist_url):
     result = anilist_api.add(anilist_url)
 
     # build emojis
-    happy_emoji = bot.get_emoji(happy_emoji_1_id)
-    shock_emoji = bot.get_emoji(shock_emoji_1_id)
+    positive_emoji = bot.get_emoji(random.choice(emojis['positive']))
+    negative_emoji = bot.get_emoji(random.choice(emojis['negative']))
 
     # respond to the user depending on the attempt
     if result:
         usr_msg = "かしこまりました、ご主人様。"
         usr_msg += "\nI have successfully updated anilist!"
         await ctx.send(usr_msg)
-        await ctx.send(happy_emoji)
+        await ctx.send(positive_emoji)
     else:
         usr_msg = "申し訳ありません、ご主人様！！"
         usr_msg += "\nI was unable to process your command!"
         await ctx.send(usr_msg)
-        await ctx.send(shock_emoji)
+        await ctx.send(negative_emoji)
 
 @bot.command()
 async def update(ctx, anilist_url, progress):
@@ -114,8 +109,8 @@ async def update(ctx, anilist_url, progress):
     title = anilist_api.get_title(anilist_url)
 
     # build emojis
-    happy_emoji = bot.get_emoji(happy_emoji_2_id)
-    shock_emoji = bot.get_emoji(shock_emoji_2_id)
+    positive_emoji = bot.get_emoji(random.choice(emojis['positive']))
+    negative_emoji = bot.get_emoji(random.choice(emojis['negative']))
 
     # respond to the user depending on the attempt
     if result:
@@ -125,12 +120,12 @@ async def update(ctx, anilist_url, progress):
         usr_msg += "\nI have successfully updated anilist!"
         usr_msg += f"\n{title}: {previous_progress} --> {current_progress}"
         await ctx.send(usr_msg)
-        await ctx.send(happy_emoji)
+        await ctx.send(positive_emoji)
     else:
         usr_msg = "申し訳ありません、ご主人様！！"
         usr_msg += "\nI was unable to process your command!"
         await ctx.send(usr_msg)
-        await ctx.send(shock_emoji)
+        await ctx.send(negative_emoji)
 
 @bot.command()
 async def rate(ctx, anilist_url, score):
@@ -141,27 +136,27 @@ async def rate(ctx, anilist_url, score):
     title = anilist_api.get_title(anilist_url)
 
     # build emojis
-    happy_emoji = bot.get_emoji(happy_emoji_3_id)
-    shock_emoji = bot.get_emoji(shock_emoji_3_id)
+    positive_emoji = bot.get_emoji(random.choice(emojis['positive']))
+    negative_emoji = bot.get_emoji(random.choice(emojis['negative']))
 
     # respond to the user depending on the attempt
     if result:
         usr_msg = "かしこまりました、ご主人様。"
         usr_msg += "\nI have successfully updated anilist!"
         await ctx.send(usr_msg)
-        await ctx.send(happy_emoji)
+        await ctx.send(positive_emoji)
     else:
         usr_msg = "申し訳ありません、ご主人様！！"
         usr_msg += "\nI was unable to process your command!"
         await ctx.send(usr_msg)
-        await ctx.send(shock_emoji)
+        await ctx.send(negative_emoji)
 
 @bot.command()
 async def schedule(ctx, anilist_url_1, anilist_url_2, anilist_url_3):
     """ schedules the three anime sessions - must provide 3 anilist urls """
 
     # build emojis
-    happy_emoji = bot.get_emoji(happy_emoji_4_id)
+    positive_emoji = bot.get_emoji(random.choice(emojis['positive']))
 
     # build a dictionary for the scheduled anime
     schedule = {
@@ -171,13 +166,13 @@ async def schedule(ctx, anilist_url_1, anilist_url_2, anilist_url_3):
     }
 
     # dump it to a temporary file
-    with open('schedule.json', 'w') as fn:
+    with open('data/schedule.json', 'w') as fn:
         json.dump(schedule, fn)
 
     usr_msg = "かしこまりました、ご主人様。"
     usr_msg += "\nI have successfully updated the scheduled messages!"
     await ctx.send(usr_msg)
-    await ctx.send(happy_emoji)
+    await ctx.send(positive_emoji)
 
 @aiocron.crontab('0 17 * * 0')
 async def sunday_message():
@@ -187,11 +182,11 @@ async def sunday_message():
     channel = bot.get_channel(int(channel_id))
 
     # build emojis
-    happy_emoji = bot.get_emoji(happy_emoji_5_id)
+    positive_emoji = bot.get_emoji(random.choice(emojis['positive']))
 
     # load the requested scheduled anime
     schedule = {}
-    with open('schedule.json', 'r') as fn:
+    with open('/data/schedule.json', 'r') as fn:
         schedule = json.load(fn)
 
     # set up the anime urls
@@ -214,7 +209,7 @@ async def sunday_message():
     usr_msg += f'\nHope to see you there!'
 
     await channel.send(usr_msg)
-    await channel.send(happy_emoji)
+    await channel.send(positive_emoji)
 
 @aiocron.crontab('0 17 * * 1')
 async def monday_message():
@@ -224,7 +219,7 @@ async def monday_message():
     channel = bot.get_channel(int(channel_id))
 
     # build emojis
-    happy_emoji = bot.get_emoji(happy_emoji_6_id)
+    positive_emoji = bot.get_emoji(random.choice(emojis['positive']))
 
     # load the requested scheduled anime
     schedule = {}
@@ -247,7 +242,7 @@ async def monday_message():
     usr_msg += f'\nHope to see you there!'
 
     await channel.send(usr_msg)
-    await channel.send(happy_emoji)
+    await channel.send(positive_emoji)
 
 # run the bot
 bot.run(bot_token)
