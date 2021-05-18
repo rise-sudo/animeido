@@ -1,6 +1,6 @@
 """ schedule
 cog that handles all scheduling tasks
-which includes announcements for members """
+which includes scheduled announcements for members """
 
 from discord.ext import commands
 import random
@@ -113,3 +113,4 @@ class Schedule(commands.Cog):
 
         await channel.send(usr_msg)
         await channel.send(positive_emoji)
+        

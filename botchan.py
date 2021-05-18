@@ -5,81 +5,62 @@ import json
 import yaml
 import random
 import dotenv
-import aiocron
 import discord
 from discord.ext import commands
 
 from cogs.schedule import Schedule
 from cogs.maintain import Maintain
+from cogs.provide import Provide
 
 # import anilist api wrapper
 from api.anilist import AniList
 
-# load the emojis
-with open('data/emojis.yml', 'r') as fn:
-    emojis = yaml.load(fn, Loader=yaml.FullLoader)
+def load_emojis(filename):
+    """ load emojis
+    simple function to load the emojis datastructure """
 
-# set up environmental variables
-config = dotenv.dotenv_values('.env')
+    # initialize emojis
+    emojis = {}
 
-# bot token that is required to log into the correct bot
-bot_token = config['BOT_TOKEN']
+    # load the emojis
+    with open(filename, 'r') as fn:
+        emojis = yaml.load(fn, Loader=yaml.FullLoader)
 
-# primary channel id for the bot to post messages to
-channel_id = config['CHANNEL_ID']
+    return emojis
 
-# primary role id for the bot to mention in messages
-role_id = config['ROLE_ID']
+def main():
+    # set up environmental variables
+    config = dotenv.dotenv_values('.env')
 
-# set up icon url for embeds
-icon_url = config['ICON_URL']
+    # bot token that is required to log into the correct bot
+    bot_token = config['BOT_TOKEN']
 
-# set up anilist user
-anilist_user = config['ANILIST_USER']
+    # primary channel id for the bot to post messages to
+    channel_id = config['CHANNEL_ID']
 
-# set up anilist api
-anilist_api = AniList()
+    # primary role id for the bot to mention in messages
+    role_id = config['ROLE_ID']
 
-# set up the command prefix
-bot = commands.Bot(command_prefix='$weeb')
-bot.add_cog(Schedule(bot, anilist_api, emojis, channel_id, role_id))
-bot.add_cog(Maintain(bot, anilist_api, emojis))
+    # set up icon url for embeds
+    icon_url = config['ICON_URL']
 
-@bot.event
-async def on_ready():
-    """ on ready
-    generates a message once the bot has successfully logged into discord """
+    # set up anilist user
+    anilist_user = config['ANILIST_USER']
 
-    # print to the console screen
-    print(f'Logged in as {bot.user.name} with id of {bot.user.id}.')
-    print('------')
+    # set up anilist api
+    anilist_api = AniList()
 
-@bot.command()
-async def search(ctx, *search_term: str):
-    """ search with any term or terms """
+    # set up emojis
+    emojis = load_emojis('data/emojis.yml')
 
-    # search via the anilist api and get the url results
-    anilist_urls = anilist_api.search(' '.join(search_term))
+    # set up the command prefix
+    bot = commands.Bot(command_prefix='$weeb')
+    bot.add_cog(Schedule(bot, anilist_api, emojis, channel_id, role_id))
+    bot.add_cog(Maintain(bot, anilist_api, emojis))
+    bot.add_cog(Provide(bot, anilist_api, icon_url, anilist_user))
 
-    # set up embed
-    embed = discord.Embed(
-        title="AniList Search",
-        color=0xaaa9ad,
-        description=f"Found {len(anilist_urls)} matches!"
-    )
-    embed.set_author(
-        name="アニメイド", 
-        icon_url=icon_url, 
-        url=f"https://anilist.co/user/{anilist_user}/"
-    )
-    embed.set_thumbnail(url=icon_url)
+    # run the bot
+    bot.run(bot_token)
 
-    # iterate through the urls and send to user
-    for anilist_url in anilist_urls:
-        title = anilist_url[0]
-        url = anilist_url[1]
-        embed.add_field(name=title, value=url, inline=False)
-        
-    await ctx.send(embed=embed)
-# run the bot
-bot.run(bot_token)
+if __name__ == '__main__':
+    main()
