@@ -5,7 +5,7 @@ from discord.ext import commands
 import random
 
 class Maintain(commands.Cog):
-    def __init__(self, bot, anilist_api, emojis):
+    def __init__(self, bot, anilist_api, emojis, config):
         self.bot = bot
         self.anilist_api = anilist_api
         self.emojis = emojis

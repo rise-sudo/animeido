@@ -1,18 +1,20 @@
 """ botchan
 the main program for the discord bot """
 
+# import data libraries
 import json
 import yaml
-import random
 import dotenv
-import discord
+
+# import discord extension commands
 from discord.ext import commands
 
+# import custom cogs
 from cogs.schedule import Schedule
 from cogs.maintain import Maintain
 from cogs.provide import Provide
 
-# import anilist api wrapper
+# import custom anilist api wrapper
 from api.anilist import AniList
 
 def load_emojis(filename):
@@ -29,23 +31,13 @@ def load_emojis(filename):
     return emojis
 
 def main():
+    """ primary function that runs the bot """
+
     # set up environmental variables
     config = dotenv.dotenv_values('.env')
 
     # bot token that is required to log into the correct bot
     bot_token = config['BOT_TOKEN']
-
-    # primary channel id for the bot to post messages to
-    channel_id = config['CHANNEL_ID']
-
-    # primary role id for the bot to mention in messages
-    role_id = config['ROLE_ID']
-
-    # set up icon url for embeds
-    icon_url = config['ICON_URL']
-
-    # set up anilist user
-    anilist_user = config['ANILIST_USER']
 
     # set up anilist api
     anilist_api = AniList()
@@ -55,9 +47,11 @@ def main():
 
     # set up the command prefix
     bot = commands.Bot(command_prefix='$weeb')
-    bot.add_cog(Schedule(bot, anilist_api, emojis, channel_id, role_id))
-    bot.add_cog(Maintain(bot, anilist_api, emojis))
-    bot.add_cog(Provide(bot, anilist_api, icon_url, anilist_user))
+
+    # set up the custom cogs
+    bot.add_cog(Schedule(bot, anilist_api, emojis, config))
+    bot.add_cog(Maintain(bot, anilist_api, emojis, config))
+    bot.add_cog(Provide(bot, anilist_api, emojis, config))
 
     # run the bot
     bot.run(bot_token)

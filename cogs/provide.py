@@ -6,11 +6,12 @@ from discord.ext import commands
 import discord
 
 class Provide(commands.Cog):
-    def __init__(self, bot, anilist_api, icon_url, anilist_user):
+    def __init__(self, bot, anilist_api, emojis, config):
         self.bot = bot
         self.anilist_api = anilist_api
-        self.icon_url = icon_url
-        self.anilist_user = anilist_user
+        self.emojis = emojis
+        self.icon_url = config['ICON_URL']
+        self.anilist_user = config['ANILIST_USER']
 
     @commands.Cog.listener()
     async def on_ready(self):

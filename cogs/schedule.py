@@ -8,12 +8,12 @@ import json
 import aiocron
 
 class Schedule(commands.Cog):
-    def __init__(self, bot, anilist_api, emojis, channel_id, role_id):
+    def __init__(self, bot, anilist_api, emojis, config):
         self.bot = bot
         self.anilist_api = anilist_api
         self.emojis = emojis
-        self.channel_id = channel_id
-        self.role_id = role_id
+        self.channel_id = config['CHANNEL_ID']
+        self.role_id = config['ROLE_ID']
 
         @aiocron.crontab('0 17 * * 0')
         async def on_monday_reminder():
@@ -113,4 +113,3 @@ class Schedule(commands.Cog):
 
         await channel.send(usr_msg)
         await channel.send(positive_emoji)
-        
