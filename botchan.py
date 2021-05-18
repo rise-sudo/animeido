@@ -10,6 +10,7 @@ import discord
 from discord.ext import commands
 
 from cogs.schedule import Schedule
+from cogs.maintain import Maintain
 
 # import anilist api wrapper
 from api.anilist import AniList
@@ -42,6 +43,7 @@ anilist_api = AniList()
 # set up the command prefix
 bot = commands.Bot(command_prefix='$weeb')
 bot.add_cog(Schedule(bot, anilist_api, emojis, channel_id, role_id))
+bot.add_cog(Maintain(bot, anilist_api, emojis))
 
 @bot.event
 async def on_ready():
@@ -79,80 +81,5 @@ async def search(ctx, *search_term: str):
         embed.add_field(name=title, value=url, inline=False)
         
     await ctx.send(embed=embed)
-
-@bot.command()
-async def add(ctx, anilist_url):
-    """ provide anilist url to add to PTW list """
-
-    # add to the existing anilist
-    result = anilist_api.add(anilist_url)
-
-    # build emojis
-    positive_emoji = bot.get_emoji(random.choice(emojis['positive']))
-    negative_emoji = bot.get_emoji(random.choice(emojis['negative']))
-
-    # respond to the user depending on the attempt
-    if result:
-        usr_msg = "かしこまりました、ご主人様。"
-        usr_msg += "\nI have successfully updated anilist!"
-        await ctx.send(usr_msg)
-        await ctx.send(positive_emoji)
-    else:
-        usr_msg = "申し訳ありません、ご主人様！！"
-        usr_msg += "\nI was unable to process your command!"
-        await ctx.send(usr_msg)
-        await ctx.send(negative_emoji)
-
-@bot.command()
-async def update(ctx, anilist_url, progress):
-    """ provide an anilist url and episode progress (e.g. +2, -4, 7) """
-
-    # update anilist with the episode count
-    result = anilist_api.update(anilist_url, progress=progress)
-    title = anilist_api.get_title(anilist_url)
-
-    # build emojis
-    positive_emoji = bot.get_emoji(random.choice(emojis['positive']))
-    negative_emoji = bot.get_emoji(random.choice(emojis['negative']))
-
-    # respond to the user depending on the attempt
-    if result:
-        previous_progress = result[0]
-        current_progress = result[1]
-        usr_msg = "かしこまりました、ご主人様。"
-        usr_msg += "\nI have successfully updated anilist!"
-        usr_msg += f"\n{title}: {previous_progress} --> {current_progress}"
-        await ctx.send(usr_msg)
-        await ctx.send(positive_emoji)
-    else:
-        usr_msg = "申し訳ありません、ご主人様！！"
-        usr_msg += "\nI was unable to process your command!"
-        await ctx.send(usr_msg)
-        await ctx.send(negative_emoji)
-
-@bot.command()
-async def rate(ctx, anilist_url, score):
-    """ provide an anilist url and a score to rate an anime """
-
-    # update anilist with the rating
-    result = anilist_api.rate(anilist_url, score=score)
-    title = anilist_api.get_title(anilist_url)
-
-    # build emojis
-    positive_emoji = bot.get_emoji(random.choice(emojis['positive']))
-    negative_emoji = bot.get_emoji(random.choice(emojis['negative']))
-
-    # respond to the user depending on the attempt
-    if result:
-        usr_msg = "かしこまりました、ご主人様。"
-        usr_msg += "\nI have successfully updated anilist!"
-        await ctx.send(usr_msg)
-        await ctx.send(positive_emoji)
-    else:
-        usr_msg = "申し訳ありません、ご主人様！！"
-        usr_msg += "\nI was unable to process your command!"
-        await ctx.send(usr_msg)
-        await ctx.send(negative_emoji)
-
 # run the bot
 bot.run(bot_token)
