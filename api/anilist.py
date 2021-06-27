@@ -194,7 +194,7 @@ class AniList:
         get the current progress of the media specified """
 
         # initialize progress
-        progress = 0
+        progress = 1
 
         # initialize media id based off url
         media_id = get_media_id_from_url(anilist_url)
@@ -229,7 +229,7 @@ class AniList:
             return progress
 
         # grab the current progress on the media entry
-        progress = response.json()['data']['MediaList']['progress']
+        progress = int(response.json()['data']['MediaList']['progress']) + 1
 
         return progress
 
