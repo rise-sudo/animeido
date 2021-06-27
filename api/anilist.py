@@ -281,7 +281,7 @@ class AniList:
             return False
 
         # track previous progress
-        previous_progress = self.get_current_progress(anilist_url)
+        previous_progress = self.get_current_progress(anilist_url) - 1
 
         # check if progress is additive or static
         try:
@@ -351,7 +351,7 @@ class AniList:
         if response.status_code != 200:
             return False
         else:
-            current_progress = self.get_current_progress(anilist_url)
+            current_progress = self.get_current_progress(anilist_url) - 1
             return [previous_progress, current_progress]
 
     def rate(self, anilist_url, score=0, media_status='COMPLETED'):
