@@ -15,6 +15,9 @@ class Schedule(commands.Cog):
         self.channel_id = config['CHANNEL_ID']
         self.role_id = config['ROLE_ID']
 
+        # set up skip parameter
+        self.skip = False
+
         @aiocron.crontab('0 17 * * 0')
         async def on_monday_reminder():
             await self.sunday_message()
@@ -46,8 +49,36 @@ class Schedule(commands.Cog):
         await ctx.send(usr_msg)
         await ctx.send(positive_emoji)
 
+    @commands.command()
+    async def skip(self, ctx):
+        """ has bot skip the pinging and scheduling until reactivated again """
+
+        # set up the skip parameter
+        self.skip = True
+
+        usr_msg = "かしこまりました、ご主人様。"
+        usr_msg += "\nI have deactivated the scheduling upon your request!"
+        await ctx.send(usr_msg)
+        await ctx.send(positive_emoji)
+
+    @commands.command()
+    async def activate(self, ctx):
+        """ has bot activate the pinging and scheduling until deactivated again """
+
+        # set up the skip parameter
+        self.skip = False
+
+        usr_msg = "かしこまりました、ご主人様。"
+        usr_msg += "\nI have activated the scheduling upon your request!"
+        await ctx.send(usr_msg)
+        await ctx.send(positive_emoji)
+
     async def sunday_message(self):
         """ sunday scheduled message """
+
+        # do not run method if skip parameter is true
+        if self.skip:
+            return
 
         # set up the channel to post in
         channel = self.bot.get_channel(int(self.channel_id))
@@ -84,6 +115,10 @@ class Schedule(commands.Cog):
  
     async def monday_message(self):
         """ monday scheduled message """
+
+        # do not run method if skip parameter is true
+        if self.skip:
+            return
 
         # set up the channel to post in
         channel = self.bot.get_channel(int(self.channel_id))
